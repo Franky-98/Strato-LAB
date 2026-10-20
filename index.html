@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Strato Lab: stampa 3D su richiesta. Prototipi, piccole serie e ricambi in PLA, PETG, ASA, TPU e nylon.">
+<title>Strato Lab Expressive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..1000&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Material 3 Expressive. Blocchi tonali a tutta larghezza con angoli molto grandi e gap stretti, forme "cookie" generate a codice, titoli enormi con peso 800, bottoni che passano da pillola a rettangolo arrotondato alla pressione. */
+:root {
+  --primary: #006783; --on-primary: #ffffff;
+  --primary-container: #bde9ff; --on-primary-container: #001f2a;
+  --secondary-container: #cfe6f1; --on-secondary-container: #071e26;
+  --tertiary: #9a4600; --on-tertiary: #ffffff;
+  --tertiary-container: #ffdcc7; --on-tertiary-container: #311300;
+  --surface: #f5fafd; --surface-low: #eef4f8; --surface-container: #e8eef2;
+  --surface-high: #e2e8ec; --surface-highest: #dce3e7;
+  --on-surface: #171c1f; --on-surface-variant: #40484c;
+  --outline: #70787d; --outline-variant: #c0c8cd;
+  --font: "Roboto Flex", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --r-block: 48px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #5dd5fc; --on-primary: #003546;
+    --primary-container: #004d64; --on-primary-container: #bde9ff;
+    --secondary-container: #344a53; --on-secondary-container: #cfe6f1;
+    --tertiary: #ffb787; --on-tertiary: #512400;
+    --tertiary-container: #743400; --on-tertiary-container: #ffdcc7;
+    --surface: #0f1417; --surface-low: #171c20; --surface-container: #1b2024;
+    --surface-high: #252b2e; --surface-highest: #303639;
+    --on-surface: #dee3e7; --on-surface-variant: #c0c8cd;
+    --outline: #8a9297; --outline-variant: #40484c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --primary: #5dd5fc; --on-primary: #003546;
+  --primary-container: #004d64; --on-primary-container: #bde9ff;
+  --secondary-container: #344a53; --on-secondary-container: #cfe6f1;
+  --tertiary: #ffb787; --on-tertiary: #512400;
+  --tertiary-container: #743400; --on-tertiary-container: #ffdcc7;
+  --surface: #0f1417; --surface-low: #171c20; --surface-container: #1b2024;
+  --surface-high: #252b2e; --surface-highest: #303639;
+  --on-surface: #dee3e7; --on-surface-variant: #c0c8cd;
+  --outline: #8a9297; --outline-variant: #40484c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface); color: var(--on-surface);
+  font-family: var(--font); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 24px;
+}
+.wrap { max-width: 1200px; margin-inline: auto; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--tertiary); outline-offset: 3px; }
+.label { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ico { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* top bar */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-block: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; }
+.logo svg { width: 40px; height: 40px; }
+.logo path { fill: var(--primary); }
+.chips { display: flex; gap: 6px; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding-block: 2px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; text-decoration: none; font-weight: 500; font-size: 0.95rem; padding: 10px 18px; border-radius: 23px; color: var(--on-surface-variant); transition: background 0.2s, border-radius 0.3s var(--spring); }
+.chip:hover { background: var(--surface-high); color: var(--on-surface); }
+.chip:active { border-radius: 12px; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 28px; border: 0; border-radius: 28px; font: 600 1.05rem var(--font); text-decoration: none; cursor: pointer; transition: border-radius 0.3s var(--spring), transform 0.3s var(--spring), background 0.2s; }
+.btn:active { border-radius: 16px; transform: scale(0.98); }
+.btn.filled { background: var(--primary); color: var(--on-primary); }
+.btn.tonal { background: var(--surface); color: var(--on-surface); }
+.btn.outlined { background: transparent; color: inherit; box-shadow: inset 0 0 0 2px currentColor; }
+.btn.small { min-height: 40px; padding: 0 18px; font-size: 0.9rem; border-radius: 20px; }
+.btn.small:active { border-radius: 12px; }
+.row-btn { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* blocks */
+.blocks { display: grid; gap: 12px; }
+.block { border-radius: var(--r-block); padding: clamp(24px, 5vw, 56px); display: grid; gap: 40px; }
+.block.hero { background: var(--primary-container); color: var(--on-primary-container); grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: center; padding-block: clamp(28px, 6vw, 72px); }
+.block.b-surface-container { background: var(--surface-container); }
+.block.b-secondary { background: var(--secondary-container); color: var(--on-secondary-container); }
+.block.b-tertiary { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.block.b-primary { background: var(--primary); color: var(--on-primary); }
+.block.b-low { background: var(--surface-low); }
+.sec-head { display: grid; gap: 14px; max-width: 760px; }
+.sec-head h2 { font-size: clamp(2.3rem, 6.5vw, 4.4rem); }
+.sec-head p { font-size: 1.1rem; opacity: 0.85; max-width: 56ch; }
+
+/* hero */
+.hero h1 { font-size: clamp(3rem, 8.6vw, 6.6rem); font-weight: 850; line-height: 0.95; margin-block: 18px 24px; }
+.hl { background: var(--tertiary-container); color: var(--on-tertiary-container); padding: 0 0.22em; border-radius: 0.34em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hero .lead { font-size: 1.2rem; max-width: 46ch; margin-bottom: 30px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+.stat { background: var(--surface); color: var(--on-surface); border-radius: 20px; padding: 12px 18px; display: grid; gap: 0; }
+.stat:nth-child(2) { border-radius: 999px; }
+.stat strong { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.78rem; color: var(--on-surface-variant); }
+.art { width: 100%; max-width: 500px; margin-inline: auto; aspect-ratio: 1; }
+.art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.art .big { fill: var(--primary); }
+.art .s1 { fill: var(--tertiary-container); }
+.art .s2 { fill: var(--surface); }
+.art .stripes { stroke: var(--on-primary); opacity: 0.28; stroke-width: 2; fill: none; }
+
+/* servizi */
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.svc { border-radius: 36px; padding: 28px; display: grid; gap: 14px; align-content: start; }
+.svc:nth-child(1) { background: var(--primary-container); color: var(--on-primary-container); border-radius: 56px 28px 28px 28px; --sb: var(--primary); --sf: var(--on-primary); }
+.svc:nth-child(2) { background: var(--tertiary-container); color: var(--on-tertiary-container); --sb: var(--tertiary); --sf: var(--on-tertiary); }
+.svc:nth-child(3) { background: var(--secondary-container); color: var(--on-secondary-container); border-radius: 28px 56px 28px 28px; --sb: var(--primary); --sf: var(--on-primary); }
+.svc:nth-child(4) { background: var(--surface-high); --sb: var(--tertiary); --sf: var(--on-tertiary); border-radius: 28px 28px 28px 56px; }
+.svc:nth-child(5) { background: var(--primary-container); color: var(--on-primary-container); --sb: var(--primary); --sf: var(--on-primary); }
+.svc:nth-child(6) { background: var(--tertiary-container); color: var(--on-tertiary-container); border-radius: 28px 28px 56px 28px; --sb: var(--tertiary); --sf: var(--on-tertiary); }
+.shape { width: 64px; height: 64px; }
+.shape path { fill: var(--sb); }
+.shape use { color: var(--sf); }
+.svc h3 { font-size: 1.55rem; }
+.svc p { opacity: 0.85; font-size: 0.98rem; }
+.svc .label { opacity: 0.75; }
+
+/* materiali */
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg button { font: 600 1rem var(--font); border: 0; cursor: pointer; padding: 0 22px; min-height: 52px; background: var(--surface); color: var(--on-surface); border-radius: 16px; transition: border-radius 0.35s var(--spring), background 0.2s, color 0.2s; }
+.seg button:hover { background: var(--surface-high); }
+.seg button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); border-radius: 26px; }
+.mat { background: var(--surface); color: var(--on-surface); border-radius: 40px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; }
+.mat h3 { font-size: clamp(2.6rem, 7vw, 4.6rem); font-weight: 850; }
+.mat .temp { display: inline-block; margin-top: 18px; background: var(--tertiary-container); color: var(--on-tertiary-container); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mat .desc { margin-top: 16px; color: var(--on-surface-variant); max-width: 44ch; }
+.mat .uses { margin-top: 10px; font-weight: 500; }
+.metrics { display: grid; gap: 18px; align-content: center; }
+.metric { display: grid; gap: 4px; }
+.metric .label { color: var(--on-surface-variant); display: flex; justify-content: space-between; }
+.metric svg { width: 100%; height: 20px; display: block; overflow: visible; }
+.metric .wave { stroke: var(--primary); stroke-width: 5; fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.metric .track { stroke: var(--outline-variant); stroke-width: 5; fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.fine { font-size: 0.88rem; opacity: 0.8; max-width: 70ch; }
+
+/* processo */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.step { background: var(--surface); color: var(--on-surface); border-radius: 32px; padding: 22px; display: grid; gap: 12px; align-content: start; }
+.step:nth-child(even) { border-radius: 32px 32px 32px 8px; }
+.step:nth-child(odd) { border-radius: 8px 32px 32px 32px; }
+.step .num { width: 56px; height: 56px; position: relative; }
+.step .num svg { width: 100%; height: 100%; }
+.step .num path { fill: var(--tertiary); }
+.step .num b { position: absolute; inset: 0; display: grid; place-items: center; color: var(--on-tertiary); font-weight: 800; font-size: 1.3rem; }
+.step h3 { font-size: 1.3rem; }
+.step p { font-size: 0.93rem; color: var(--on-surface-variant); }
+
+/* lavori */
+.work { background: var(--surface); border-radius: 40px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.work svg.pic { display: block; width: 100%; height: 170px; background: var(--primary-container); }
+.work:nth-child(2) svg.pic { background: var(--tertiary-container); }
+.work:nth-child(3) svg.pic { background: var(--secondary-container); }
+.work .body { padding: 22px 24px 26px; display: grid; gap: 10px; align-content: start; }
+.work h3 { font-size: 1.4rem; }
+.work p { color: var(--on-surface-variant); font-size: 0.95rem; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-family: var(--font-mono); font-size: 0.72rem; background: var(--surface-high); border-radius: 999px; padding: 4px 12px; }
+
+/* prezzi */
+.price { background: var(--surface); color: var(--on-surface); border-radius: 36px; padding: 28px; display: grid; gap: 14px; align-content: start; }
+.price.hl2 { background: var(--tertiary-container); color: var(--on-tertiary-container); border-radius: 56px 28px 56px 28px; }
+.price .amount { font-size: 3rem; font-weight: 850; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.price .amount small { font-size: 1rem; font-weight: 500; letter-spacing: 0; opacity: 0.7; }
+.price ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 0.96rem; opacity: 0.9; }
+.est { background: var(--surface); color: var(--on-surface); border-radius: 40px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 36px; }
+.est h3 { font-size: 2rem; margin-bottom: 8px; }
+.ctrls { display: grid; gap: 22px; }
+.ctrl { display: grid; gap: 8px; font-weight: 600; font-size: 0.92rem; }
+.ctrl .top { display: flex; justify-content: space-between; gap: 12px; }
+.ctrl output { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+select, input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea { font: 400 1rem var(--font); color: var(--on-surface); background: var(--surface); border: 1.5px solid var(--outline); border-radius: 18px; padding: 14px 16px; width: 100%; min-width: 0; }
+select:focus, input:focus, textarea:focus { outline: 0; border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+textarea { min-height: 120px; resize: vertical; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 40px; background: transparent; margin: 0; --p: 10%; }
+input[type="range"]::-webkit-slider-runnable-track { height: 16px; border-radius: 8px; background: linear-gradient(to right, var(--primary) var(--p), var(--secondary-container) var(--p)); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 40px; margin-top: -12px; border-radius: 3px; background: var(--primary); border: 0; box-shadow: 0 0 0 4px var(--surface); }
+input[type="range"]::-moz-range-track { height: 16px; border-radius: 8px; background: var(--secondary-container); }
+input[type="range"]::-moz-range-progress { height: 16px; border-radius: 8px; background: var(--primary); }
+input[type="range"]::-moz-range-thumb { width: 6px; height: 40px; border-radius: 3px; background: var(--primary); border: 0; box-shadow: 0 0 0 4px var(--surface); }
+.result { background: var(--primary-container); color: var(--on-primary-container); border-radius: 32px 32px 56px 32px; padding: 28px; display: grid; gap: 6px; align-content: center; }
+.result .big { font-size: clamp(2.8rem, 8vw, 4.4rem); font-weight: 850; letter-spacing: -0.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* faq */
+.faq { display: grid; gap: 8px; max-width: 860px; }
+details { background: var(--surface); border-radius: 28px; padding: 22px 26px; transition: background 0.25s, border-radius 0.35s var(--spring); }
+details[open] { background: var(--primary-container); color: var(--on-primary-container); border-radius: 44px 28px 28px 28px; }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-weight: 700; font-size: 1.2rem; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-high); color: var(--on-surface); font-size: 1.4rem; line-height: 1; }
+details[open] summary::after { content: "–"; background: var(--primary); color: var(--on-primary); }
+details p { margin-top: 12px; max-width: 62ch; opacity: 0.9; }
+
+/* contatti */
+.contact { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; align-items: start; }
+.contact h2 { font-size: clamp(2.4rem, 7vw, 4.8rem); }
+.contact .info { display: grid; gap: 20px; }
+.copyline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.copyline code { font-family: var(--font-mono); font-size: 0.95rem; background: var(--surface); color: var(--on-surface); border-radius: 14px; padding: 12px 16px; overflow-wrap: anywhere; user-select: all; }
+form { background: var(--surface); color: var(--on-surface); border-radius: 40px; padding: clamp(22px, 4vw, 36px); display: grid; gap: 16px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+label.f { display: grid; gap: 6px; font-weight: 600; font-size: 0.88rem; }
+#result { display: none; gap: 12px; }
+#result.show { display: grid; }
+#result pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 0.82rem; background: var(--surface-container); border-radius: 20px; padding: 16px; }
+footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 28px 12px 8px; color: var(--on-surface-variant); font-size: 0.9rem; }
+
+.fab { position: fixed; z-index: 20; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: inline-flex; align-items: center; gap: 12px; min-height: 64px; padding: 0 26px; border-radius: 24px; background: var(--tertiary); color: var(--on-tertiary); font-weight: 700; font-size: 1.05rem; text-decoration: none; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25); transition: transform 0.35s var(--spring), opacity 0.25s, border-radius 0.3s var(--spring); }
+.fab:active { border-radius: 32px; }
+.fab.gone { transform: scale(0.6); opacity: 0; pointer-events: none; }
+
+/* apertura dei blocchi allo scroll: parte da una forma stretta e molto tonda e si apre con un rimbalzo */
+.js-reveal .block { transition: transform 0.85s var(--spring), border-radius 0.85s var(--spring), opacity 0.5s ease; }
+.js-reveal .block.pre { transform: translateY(64px) scale(0.88); border-radius: 140px; opacity: 0.2; }
+.js-reveal .pop { transition: transform 0.7s var(--spring), opacity 0.5s ease; transition-delay: calc(var(--i, 0) * 70ms + 180ms); }
+.js-reveal .block.pre .pop { opacity: 0; transform: translateY(32px) scale(0.9); }
+.js-reveal .block.done .pop { transition: none; }
+.js-reveal .block.done details.pop { transition: background 0.25s, border-radius 0.35s var(--spring); }
+
+@media (max-width: 920px) {
+  :root { --r-block: 36px; }
+  .block.hero, .mat, .est, .contact { grid-template-columns: minmax(0, 1fr); }
+  .grid-3 { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .art { max-width: 360px; }
+  .step { grid-template-columns: 56px minmax(0, 1fr); column-gap: 16px; }
+  .step .num { grid-row: span 2; }
+}
+@media (max-width: 520px) { .two { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z M12 12l8-4.5 M12 12v9 M12 12L4 7.5"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-nut" viewBox="0 0 24 24"><path d="M12 2.5l8.5 5v9L12 21.5l-8.5-5v-9z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z M14 7l3 3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
+  <symbol id="i-jig" viewBox="0 0 24 24"><path d="M4 5h16v4H4z M7 9v10 M17 9v10 M5 19h4 M15 19h4"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M4 6h16v12H4z M4 7l8 6 8-6"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="bar">
+    <a class="logo" href="#top" aria-label="Strato Lab, inizio pagina">
+      <svg viewBox="0 0 64 64" aria-hidden="true" data-cookie="8" data-a="0.09"><path/></svg>Strato Lab
+    </a>
+    <nav class="chips" aria-label="Sezioni">
+      <a class="chip" href="#servizi">Servizi</a>
+      <a class="chip" href="#materiali">Materiali</a>
+      <a class="chip" href="#processo">Come funziona</a>
+      <a class="chip" href="#lavori">Lavori</a>
+      <a class="chip" href="#prezzi">Prezzi</a>
+      <a class="chip" href="#faq">FAQ</a>
+      <a class="chip" href="#contatti">Contatti</a>
+    </nav>
+  </header>
+
+  <main class="blocks" id="top">
+    <section class="block hero" aria-labelledby="h-hero">
+      <div>
+        <p class="label">Stampa 3D su richiesta · Roma</p>
+        <h1 id="h-hero">Le tue idee in 3D, <span class="hl">strato dopo strato.</span></h1>
+        <p class="lead">Prototipi, piccole serie e ricambi in PLA, PETG, ASA, TPU e nylon. Mandi il file, ricevi il preventivo in 24 ore e un pezzo controllato a mano.</p>
+        <div class="row-btn">
+          <a class="btn filled" href="#contatti">Chiedi un preventivo</a>
+          <a class="btn outlined" href="#lavori">Guarda i lavori</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>0,08–0,32 mm</strong><span>altezza strato</span></div>
+          <div class="stat"><strong>±0,2 mm</strong><span>tolleranza tipica</span></div>
+          <div class="stat"><strong>24 h</strong><span>per il preventivo</span></div>
+        </div>
+      </div>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 400 400">
+          <defs><clipPath id="clipBig"><path id="pBig"/></clipPath></defs>
+          <g clip-path="url(#clipBig)"><rect class="big" width="400" height="400"/><path class="stripes" id="stripes"/></g>
+          <path class="s1" id="pS1"/>
+          <path class="s2" id="pS2"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="block b-surface-container" id="servizi" aria-labelledby="h-serv">
+      <div class="sec-head"><h2 id="h-serv">Cosa stampiamo</h2><p>Dal singolo pezzo di prova alla serie da qualche centinaio di unità. Se non hai il file 3D, lo disegniamo partendo da misure, foto o dal pezzo rotto.</p></div>
+      <div class="grid-3">
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="8" data-a="0.08" aria-hidden="true"><path/><use href="#i-cube" x="16" y="16" width="32" height="32"/></svg><span class="label">Da 1 pezzo</span><h3>Prototipazione rapida</h3><p>Verifica forma, ingombri e montaggio prima di investire in uno stampo. Più versioni in pochi giorni.</p></article>
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="6" data-a="0.1" aria-hidden="true"><path/><use href="#i-layers" x="16" y="16" width="32" height="32"/></svg><span class="label">Da 10 a 500 pezzi</span><h3>Piccole serie</h3><p>Più stampanti in parallelo, stesso lotto di filamento e controllo dimensionale a campione.</p></article>
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="10" data-a="0.07" aria-hidden="true"><path/><use href="#i-nut" x="16" y="16" width="32" height="32"/></svg><span class="label">Ricambi</span><h3>Pezzi introvabili</h3><p>Manopole, ingranaggi, staffe e clip per elettrodomestici, arredi e attrezzature fuori produzione.</p></article>
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="7" data-a="0.09" aria-hidden="true"><path/><use href="#i-pencil" x="16" y="16" width="32" height="32"/></svg><span class="label">CAD</span><h3>Modellazione 3D</h3><p>Dalle quote o da un pezzo campione a un modello pronto da stampare, con tolleranze adatte al processo FDM.</p></article>
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="9" data-a="0.08" aria-hidden="true"><path/><use href="#i-spark" x="16" y="16" width="32" height="32"/></svg><span class="label">Finitura</span><h3>Levigatura e verniciatura</h3><p>Supporti rimossi, carteggiatura, stucco, primer e colore a campione per modelli da esposizione.</p></article>
+        <article class="svc"><svg class="shape" viewBox="0 0 64 64" data-cookie="12" data-a="0.05" aria-hidden="true"><path/><use href="#i-jig" x="16" y="16" width="32" height="32"/></svg><span class="label">Per aziende</span><h3>Dime e attrezzature</h3><p>Posizionatori, maschere e supporti per la linea di produzione o il banco di lavoro, anche in materiali tecnici.</p></article>
+      </div>
+    </section>
+
+    <section class="block b-secondary" id="materiali" aria-labelledby="h-mat">
+      <div class="sec-head"><h2 id="h-mat">Scegli il materiale</h2><p>Il materiale giusto dipende da dove finisce il pezzo: caldo, sole, urti, piegature. Tocca un materiale per vedere come si comporta.</p></div>
+      <div class="seg" id="seg" role="group" aria-label="Materiale"></div>
+      <div class="mat" id="mat" aria-live="polite">
+        <div>
+          <h3 id="m-name">PLA</h3>
+          <span class="temp" id="m-temp">Resiste fino a ~55 °C</span>
+          <p class="desc" id="m-desc"></p>
+          <p class="uses" id="m-uses"></p>
+        </div>
+        <div class="metrics" id="metrics"></div>
+      </div>
+      <p class="fine">I livelli sono indicativi e cambiano con il produttore del filamento. Per contatto con alimenti o requisiti di sicurezza, chiedici prima di ordinare.</p>
+    </section>
+
+    <section class="block b-tertiary" id="processo" aria-labelledby="h-proc">
+      <div class="sec-head"><h2 id="h-proc">Come funziona</h2><p>Cinque passaggi, nessuna burocrazia. Accettiamo file STL, 3MF e STEP, oppure partiamo da uno schizzo con le quote.</p></div>
+      <ol class="steps">
+        <li class="step"><span class="num"><svg viewBox="0 0 64 64" data-cookie="8" data-a="0.09" aria-hidden="true"><path/></svg><b>1</b></span><h3>Invii il file</h3><p>Dal modulo o per email, con materiale, quantità e scadenza.</p></li>
+        <li class="step"><span class="num"><svg viewBox="0 0 64 64" data-cookie="8" data-a="0.09" aria-hidden="true"><path/></svg><b>2</b></span><h3>Preventivo</h3><p>Prezzo e tempi entro 24 ore, con consigli per stampare meglio il pezzo.</p></li>
+        <li class="step"><span class="num"><svg viewBox="0 0 64 64" data-cookie="8" data-a="0.09" aria-hidden="true"><path/></svg><b>3</b></span><h3>Stampa</h3><p>Orientiamo il pezzo, scegliamo strato e riempimento e avviamo.</p></li>
+        <li class="step"><span class="num"><svg viewBox="0 0 64 64" data-cookie="8" data-a="0.09" aria-hidden="true"><path/></svg><b>4</b></span><h3>Controllo</h3><p>Supporti via, quote critiche misurate e finitura dove serve.</p></li>
+        <li class="step"><span class="num"><svg viewBox="0 0 64 64" data-cookie="8" data-a="0.09" aria-hidden="true"><path/></svg><b>5</b></span><h3>Consegna</h3><p>Ritiro a mano o corriere tracciato in tutta Italia.</p></li>
+      </ol>
+    </section>
+
+    <section class="block b-surface-container" id="lavori" aria-labelledby="h-lav">
+      <div class="sec-head"><h2 id="h-lav">Lavori tipo</h2><p>Esempi del genere di pezzi che realizziamo, con le impostazioni usate. Sostituisci queste schede con le foto dei tuoi lavori reali.</p></div>
+      <div class="grid-3">
+        <article class="work">
+          <svg class="pic" viewBox="0 0 300 150" role="img" aria-label="Disegno di un ingranaggio"><g fill="none" stroke="var(--primary)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><circle cx="150" cy="75" r="40"/><circle cx="150" cy="75" r="12"/><path d="M150 25v10M150 115v10M100 75h10M190 75h10M115 40l7 7M178 103l7 7M185 40l-7 7M122 103l-7 7"/></g></svg>
+          <div class="body"><h3>Ingranaggio di ricambio</h3><p>Sostituisce un pezzo di plastica rotto in un elettrodomestico fuori produzione.</p><div class="tags"><span>Nylon rinforzato</span><span>0,12 mm</span><span>3 h 40 min</span></div></div>
+        </article>
+        <article class="work">
+          <svg class="pic" viewBox="0 0 300 150" role="img" aria-label="Disegno di una staffa"><g fill="none" stroke="var(--tertiary)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M90 30h20v70h100v20H90z"/><circle cx="100" cy="45" r="5"/><circle cx="200" cy="110" r="5"/></g></svg>
+          <div class="body"><h3>Staffa per montaggio</h3><p>Supporto per un sensore su un banco di prova, pensato per essere avvitato senza forzare.</p><div class="tags"><span>PETG</span><span>0,20 mm</span><span>1 h 15 min</span></div></div>
+        </article>
+        <article class="work">
+          <svg class="pic" viewBox="0 0 300 150" role="img" aria-label="Disegno di un modello a strati"><g fill="var(--primary)"><rect x="105" y="115" width="90" height="8" rx="4"/><rect x="100" y="104" width="100" height="8" rx="4"/><rect x="108" y="93" width="84" height="8" rx="4"/><rect x="118" y="82" width="64" height="8" rx="4"/><rect x="124" y="71" width="52" height="8" rx="4"/><rect x="120" y="60" width="60" height="8" rx="4"/><rect x="112" y="49" width="76" height="8" rx="4"/><rect x="108" y="38" width="84" height="8" rx="4"/></g></svg>
+          <div class="body"><h3>Modello da esposizione</h3><p>Maquette di prodotto per una fiera, levigata, verniciata e pronta da consegnare.</p><div class="tags"><span>PLA</span><span>0,08 mm</span><span>11 h</span></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="block b-primary" id="prezzi" aria-labelledby="h-prezzi">
+      <div class="sec-head"><h2 id="h-prezzi">Prezzi indicativi</h2><p>Il costo dipende da peso, tempo di stampa e finitura. Questi sono punti di partenza, il preventivo è gratuito e senza impegno.</p></div>
+      <div class="grid-3">
+        <div class="price"><span class="label">Pezzo singolo</span><div class="amount">da 15 € <small>cad.</small></div><ul><li>Fino a 50 g in PLA o PETG</li><li>Altezza strato 0,20 mm</li><li>Pronto in 2–3 giorni</li></ul></div>
+        <div class="price hl2"><span class="label">Piccola serie</span><div class="amount">da 6 € <small>cad.</small></div><ul><li>Da 20 pezzi uguali</li><li>Controllo dimensionale a campione</li><li>Sconto crescente con la quantità</li></ul></div>
+        <div class="price"><span class="label">Modellazione 3D</span><div class="amount">35 € <small>/ ora</small></div><ul><li>Da misure, foto o pezzo campione</li><li>File STEP e STL inclusi</li><li>Una revisione compresa</li></ul></div>
+      </div>
+      <div class="est" aria-labelledby="h-est">
+        <div>
+          <h3 id="h-est">Stima rapida</h3>
+          <p class="fine" style="margin-bottom:22px;color:var(--on-surface-variant)">Muovi i cursori per avere un'idea del costo. Valori di esempio da sostituire con i tuoi listini.</p>
+          <div class="ctrls">
+            <div class="ctrl"><label for="e-mat">Materiale</label>
+              <select id="e-mat"><option value="0.12">PLA</option><option value="0.14">PETG</option><option value="0.20">ASA</option><option value="0.24">TPU 95A</option><option value="0.40">Nylon rinforzato</option></select></div>
+            <div class="ctrl"><div class="top"><label for="e-g">Peso del pezzo</label><output id="o-g" for="e-g">50 g</output></div><input type="range" id="e-g" min="5" max="500" step="5" value="50"></div>
+            <div class="ctrl"><div class="top"><label for="e-q">Quantità</label><output id="o-q" for="e-q">1</output></div><input type="range" id="e-q" min="1" max="200" step="1" value="1"></div>
+          </div>
+        </div>
+        <div class="result" aria-live="polite">
+          <span class="label">Totale stimato · IVA esclusa</span>
+          <div class="big" id="r-tot">15,00 €</div>
+          <p id="r-unit"></p>
+          <p class="fine" id="r-disc"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block b-low" id="faq" aria-labelledby="h-faq">
+      <div class="sec-head"><h2 id="h-faq">Domande frequenti</h2><p>Le cose che ci chiedono più spesso prima di ordinare.</p></div>
+      <div class="faq">
+        <details open><summary>Non ho il file 3D, posso ordinare lo stesso?</summary><p>Sì. Mandaci foto, misure o il pezzo da copiare. Lo modelliamo noi e ti mostriamo l'anteprima prima di stampare.</p></details>
+        <details><summary>Quanto può essere grande un pezzo?</summary><p>Fino a circa 256 × 256 × 256 mm in un unico pezzo. Oggetti più grandi si dividono in parti incollate o incastrate.</p></details>
+        <details><summary>I pezzi sono resistenti?</summary><p>Dipende da materiale, orientamento e riempimento. Lungo gli strati un pezzo stampato è più debole, quindi orientiamo il modello in base a dove lavora.</p></details>
+        <details><summary>Quanto tempo ci vuole?</summary><p>Un pezzo singolo è pronto in 2–3 giorni lavorativi. Serie e finiture richiedono più tempo, lo indichiamo nel preventivo.</p></details>
+        <details><summary>I miei file restano riservati?</summary><p>I modelli restano tuoi. Li usiamo solo per il tuo ordine e, se serve, firmiamo un accordo di riservatezza.</p></details>
+      </div>
+    </section>
+
+    <section class="block b-tertiary" id="contatti" aria-labelledby="h-cont">
+      <div class="contact">
+        <div class="info">
+          <h2 id="h-cont">Chiedi un preventivo</h2>
+          <p class="fine" style="font-size:1.1rem;opacity:0.9">Compila i dati del lavoro, copia il testo che si prepara e invialo con il file a questo indirizzo. Rispondiamo entro 24 ore lavorative.</p>
+          <div class="copyline"><code id="mailaddr">ciao@stratolab.it</code><button class="btn tonal small" type="button" id="copymail">Copia</button></div>
+          <p class="label">Lun–Ven 9:00–18:00 · Roma</p>
+        </div>
+        <form id="quote">
+          <div class="two">
+            <label class="f" for="f-nome">Nome<input id="f-nome" type="text" autocomplete="name" placeholder="Mario Rossi" required></label>
+            <label class="f" for="f-email">Email<input id="f-email" type="email" autocomplete="email" placeholder="mario@esempio.it" required></label>
+          </div>
+          <div class="two">
+            <label class="f" for="f-tipo">Tipo di lavoro<select id="f-tipo"><option>Prototipo</option><option>Piccola serie</option><option>Ricambio</option><option>Modellazione 3D</option><option>Altro</option></select></label>
+            <label class="f" for="f-mat">Materiale<select id="f-mat"><option>Non so, consigliatemi</option><option>PLA</option><option>PETG</option><option>ASA</option><option>TPU</option><option>Nylon rinforzato</option></select></label>
+          </div>
+          <div class="two">
+            <label class="f" for="f-qta">Quantità<input id="f-qta" type="number" min="1" value="1"></label>
+            <label class="f" for="f-data">Serve entro il<input id="f-data" type="date"></label>
+          </div>
+          <label class="f" for="f-desc">Descrizione<textarea id="f-desc" placeholder="A cosa serve il pezzo, misure principali, dove verrà usato."></textarea></label>
+          <button class="btn filled" type="submit">Prepara la richiesta</button>
+          <div id="result" aria-live="polite">
+            <pre id="out"></pre>
+            <div class="copyline"><button class="btn tonal small" type="button" id="copyout">Copia il testo</button><span class="label" id="copystate"></span></div>
+            <p class="fine">Incolla il testo in una email a <strong>ciao@stratolab.it</strong> e allega il file 3D.</p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 Strato Lab · P.IVA 00000000000 (da sostituire)</span>
+    <span>Stampa 3D FDM su richiesta</span>
+  </footer>
+</div>
+
+<a class="fab" id="fab" href="#contatti"><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg>Preventivo</a>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Forma "cookie": raggio che oscilla attorno a un cerchio.
+  function cookie(cx, cy, R, n, a, rot) {
+    var d = '', N = 160;
+    for (var i = 0; i <= N; i++) {
+      var th = i / N * Math.PI * 2;
+      var r = R * (1 + a * Math.cos(n * th + rot));
+      d += (i ? 'L' : 'M') + (cx + r * Math.cos(th)).toFixed(2) + ' ' + (cy + r * Math.sin(th)).toFixed(2);
+    }
+    return d + 'Z';
+  }
+  var shapes = document.querySelectorAll('svg[data-cookie]');
+  for (var i = 0; i < shapes.length; i++) {
+    var s = shapes[i];
+    s.querySelector('path').setAttribute('d', cookie(32, 32, 28 / (1 + parseFloat(s.getAttribute('data-a'))), parseInt(s.getAttribute('data-cookie'), 10), parseFloat(s.getAttribute('data-a')), 0));
+  }
+
+  // Hero: tre forme che respirano, la grande è riempita di linee di strato.
+  var pBig = document.getElementById('pBig'), pS1 = document.getElementById('pS1'), pS2 = document.getElementById('pS2');
+  var st = ''; for (var y = 6; y < 400; y += 9) st += 'M0 ' + y + 'H400';
+  document.getElementById('stripes').setAttribute('d', st);
+  function drawHero(t) {
+    pBig.setAttribute('d', cookie(200, 200, 148, 9, 0.065 + 0.055 * Math.sin(t * 0.9), t * 0.35));
+    pS1.setAttribute('d', cookie(76, 326, 54, 6, 0.09 + 0.05 * Math.sin(t * 1.3 + 1), -t * 0.5));
+    pS2.setAttribute('d', cookie(336, 66, 40, 12, 0.06 + 0.03 * Math.sin(t * 1.1 + 2), t * 0.6));
+  }
+  drawHero(0);
+
+  // Materiali
+  var MATS = [
+    { n: 'PLA', t: '~55 °C', d: 'Il più facile da stampare: dettagli netti e tantissimi colori.', u: 'Prototipi, modelli, oggetti da interno.', m: [0.25, 0.9, 0.1, 0.3] },
+    { n: 'PETG', t: '~75 °C', d: 'Tenace, resiste all\'umidità e agli urti senza rompersi di netto.', u: 'Contenitori, supporti, parti funzionali.', m: [0.45, 0.6, 0.35, 0.5] },
+    { n: 'ASA', t: '~95 °C', d: 'Come l\'ABS ma stabile ai raggi UV e agli agenti atmosferici.', u: 'Esterni, auto, moto, nautica.', m: [0.7, 0.65, 0.25, 0.95] },
+    { n: 'TPU 95A', t: '~80 °C', d: 'Flessibile ed elastico, assorbe urti e vibrazioni.', u: 'Guarnizioni, paraurti, impugnature.', m: [0.5, 0.1, 0.95, 0.6] },
+    { n: 'Nylon rinforzato', t: '>100 °C', d: 'Rigido e resistente all\'usura e alla fatica.', u: 'Ingranaggi, boccole, staffe sotto carico.', m: [0.85, 0.8, 0.3, 0.45] }
+  ];
+  var LABELS = ['Calore', 'Rigidità', 'Flessibilità', 'Raggi UV'];
+  var seg = document.getElementById('seg'), metrics = document.getElementById('metrics');
+  var waves = [], tracks = [], values = [0.25, 0.9, 0.1, 0.3];
+  LABELS.forEach(function (l, i) {
+    var wrap = document.createElement('div');
+    wrap.className = 'metric';
+    wrap.innerHTML = '<span class="label"><span>' + l + '</span></span><svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path class="track"/><path class="wave"/></svg>';
+    metrics.appendChild(wrap);
+    tracks.push(wrap.querySelector('.track'));
+    waves.push(wrap.querySelector('.wave'));
+  });
+  function drawWaves(phase) {
+    for (var i = 0; i < waves.length; i++) {
+      var v = Math.max(0.06, values[i]), len = v * 300 - 6, d = '';
+      for (var x = 0; x <= len; x += 3) {
+        d += (x ? 'L' : 'M') + x.toFixed(1) + ' ' + (10 + 4 * Math.sin(x / 7 + phase)).toFixed(1);
+      }
+      waves[i].setAttribute('d', d || 'M0 10');
+      tracks[i].setAttribute('d', 'M' + (len + 12).toFixed(1) + ' 10H300');
+    }
+  }
+  function pick(idx) {
+    var m = MATS[idx];
+    document.getElementById('m-name').textContent = m.n;
+    document.getElementById('m-temp').textContent = 'Resiste fino a ' + m.t;
+    document.getElementById('m-desc').textContent = m.d;
+    document.getElementById('m-uses').textContent = 'Ideale per: ' + m.u;
+    values = m.m;
+    var bs = seg.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-pressed', i === idx ? 'true' : 'false');
+    drawWaves(0);
+  }
+  MATS.forEach(function (m, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = m.n;
+    b.addEventListener('click', function () { pick(i); });
+    seg.appendChild(b);
+  });
+  pick(0);
+
+  if (!reduce) {
+    var t0 = null;
+    (function loop(ts) {
+      if (t0 === null) t0 = ts;
+      var t = (ts - t0) / 1000;
+      drawHero(t);
+      drawWaves(-t * 2.2);
+      requestAnimationFrame(loop);
+    })(performance.now());
+  }
+
+  // Stima rapida (valori di esempio)
+  var eMat = document.getElementById('e-mat'), eG = document.getElementById('e-g'), eQ = document.getElementById('e-q');
+  var eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+  function fill(el) { el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%'); }
+  function estimate() {
+    var g = +eG.value, q = +eQ.value, rate = +eMat.value;
+    var disc = q >= 50 ? 0.3 : q >= 20 ? 0.2 : q >= 10 ? 0.1 : 0;
+    var unit = (6 + g * rate) * (1 - disc);
+    var tot = unit * q + 3;
+    document.getElementById('o-g').textContent = g + ' g';
+    document.getElementById('o-q').textContent = q;
+    document.getElementById('r-tot').textContent = eur.format(tot);
+    document.getElementById('r-unit').textContent = eur.format(unit) + ' a pezzo, più 3 € di avvio ordine.';
+    document.getElementById('r-disc').textContent = disc ? 'Sconto quantità incluso: ' + Math.round(disc * 100) + '%.' : 'Sopra i 10 pezzi parte lo sconto quantità.';
+    fill(eG); fill(eQ);
+  }
+  [eMat, eG, eQ].forEach(function (el) { el.addEventListener('input', estimate); });
+  estimate();
+
+  // Copia indirizzo e testo della richiesta
+  function copier(getText, getNode, done) {
+    var text = getText();
+    function fallback() {
+      try { var r = document.createRange(); r.selectNodeContents(getNode()); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+      done(false);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
+  }
+  var mailBtn = document.getElementById('copymail');
+  mailBtn.addEventListener('click', function () {
+    copier(function () { return document.getElementById('mailaddr').textContent; }, function () { return document.getElementById('mailaddr'); },
+      function (ok) { mailBtn.textContent = ok ? 'Copiato' : 'Selezionato'; setTimeout(function () { mailBtn.textContent = 'Copia'; }, 1800); });
+  });
+  var result = document.getElementById('result'), out = document.getElementById('out');
+  document.getElementById('quote').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = function (id) { return document.getElementById(id).value.trim(); };
+    out.textContent = [
+      'Richiesta di preventivo',
+      'Nome: ' + v('f-nome'),
+      'Email: ' + v('f-email'),
+      'Tipo di lavoro: ' + v('f-tipo'),
+      'Materiale: ' + v('f-mat'),
+      'Quantità: ' + (v('f-qta') || '1'),
+      'Serve entro il: ' + (v('f-data') || 'non specificato'),
+      'Descrizione: ' + (v('f-desc') || 'nessuna'),
+      '',
+      'Allego il file 3D (STL, 3MF o STEP).'
+    ].join('\n');
+    result.classList.add('show');
+  });
+  document.getElementById('copyout').addEventListener('click', function () {
+    copier(function () { return out.textContent; }, function () { return out; },
+      function (ok) { document.getElementById('copystate').textContent = ok ? 'Copiato' : 'Testo selezionato, copialo a mano'; });
+  });
+
+  // Ogni blocco si apre quando entra nello schermo
+  if ('IntersectionObserver' in window && !reduce) {
+    document.documentElement.classList.add('js-reveal');
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var b = e.target;
+        b.classList.remove('pre');
+        io.unobserve(b);
+        setTimeout(function () { b.classList.add('done'); }, 1700);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
+    Array.prototype.forEach.call(document.querySelectorAll('.block:not(.hero)'), function (b) {
+      var items = b.querySelectorAll('.sec-head, .grid-3 > *, .steps > li, .faq > details, .seg, .mat, .est, .contact .info, .contact form');
+      Array.prototype.forEach.call(items, function (it, i) { it.classList.add('pop'); it.style.setProperty('--i', Math.min(i, 8)); });
+      b.classList.add('pre');
+      io.observe(b);
+    });
+  }
+
+  // Il pulsante flottante sparisce quando si è già nei contatti
+  var fab = document.getElementById('fab'), cont = document.getElementById('contatti');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { fab.classList.toggle('gone', en[0].isIntersecting); }, { threshold: 0.15 }).observe(cont);
+  }
+})();
+</script>
+
+</body>
+</html>
